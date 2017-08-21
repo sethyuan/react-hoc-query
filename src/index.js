@@ -15,7 +15,7 @@ function displayName(Comp) {
   return Comp.displayName || Comp.name || "Component"
 }
 
-function query({ key, name = "query", op, pollInterval }) {
+function query({ group = "DEFAULT", key, name = "query", op, pollInterval }) {
   return Comp => {
     @timer
     @connect(
@@ -24,15 +24,25 @@ function query({ key, name = "query", op, pollInterval }) {
 
         return {
           _queryKey_: queryKey,
-          _loading_: query && query[queryKey] ? query[queryKey].loading : false,
-          _error_: query && query[queryKey] && query[queryKey].error,
-          _data_: query && query[queryKey] && query[queryKey].data,
+          _loading_:
+            query[group] && query[group][queryKey]
+              ? query[group][queryKey].loading
+              : false,
+          _error_:
+            query[group] &&
+            query[group][queryKey] &&
+            query[group][queryKey].error,
+          _data_:
+            query[group] &&
+            query[group][queryKey] &&
+            query[group][queryKey].data,
         }
       },
       {
         _setLoading_: act.setLoading,
         _setError_: act.setError,
         _setData_: act.setData,
+        _incUsage_: act.incUsage,
       },
     )
     class Query extends React.Component {
@@ -62,6 +72,7 @@ function query({ key, name = "query", op, pollInterval }) {
           _setLoading_,
           _setError_,
           _setData_,
+          _incUsage_,
           ...attrs
         } = this.props
         /* eslint-enable no-unused-vars */
@@ -92,6 +103,8 @@ function query({ key, name = "query", op, pollInterval }) {
       fetch = async () => {
         if (this.props._data_ == null) {
           await this.refetch()
+        } else {
+          this.props._incUsage_(group, this.props._queryKey_)
         }
       }
 
@@ -101,28 +114,33 @@ function query({ key, name = "query", op, pollInterval }) {
           _setLoading_,
           _setError_,
           _setData_,
+          _incUsage_,
           _loading_,
           setTimeout,
           clearTimeout,
         } = this.props
 
         if (!_loading_ && !this.isFetching) {
-          _setError_(_queryKey_, undefined)
-          _setLoading_(_queryKey_, true)
+          _setError_(group, _queryKey_, undefined)
+          _setLoading_(group, _queryKey_, true)
           try {
             this.isFetching = true
-            this.loadTimer = setTimeout(query.openLoading, query.loadingWait * 1000)
+            this.loadTimer = setTimeout(
+              query.openLoading,
+              query.loadingWait * 1000,
+            )
             const data = await op(this.props)
             clearTimeout(this.loadTimer)
-            _setData_(_queryKey_, data)
+            _setData_(group, _queryKey_, data)
+            _incUsage_(group, _queryKey_)
           } catch (e) {
             clearTimeout(this.loadTimer)
             query.onError(e)
-            _setError_(_queryKey_, e)
+            _setError_(group, _queryKey_, e)
           } finally {
             this.isFetching = false
             query.closeLoading()
-            _setLoading_(_queryKey_, false)
+            _setLoading_(group, _queryKey_, false)
           }
         }
       }
@@ -147,3 +165,9 @@ query.closeLoading = () => {}
 query.onError = () => {}
 
 export default query
+
+export const groups = {
+  DEFAULT: 99999,
+}
+
+export const DEFAULT_GROUP_SIZE = 10
