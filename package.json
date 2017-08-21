@@ -1,6 +1,6 @@
 {
   "name": "react-hoc-query",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "HOC to help you query restful data",
   "main": "lib/index.js",
   "repository": "https://github.com/sethyuan/react-hoc-query.git",
@@ -38,12 +38,12 @@
   },
   "peerDependencies": {
     "react": ">=15.6.1",
+    "react-redux": "^5.0.6",
     "redux": "^3.7.2"
   },
   "dependencies": {
     "immutability-helper": "^2.3.1",
     "lru_map": "^0.3.3",
-    "react-hoc-timerfuncs": "^1.0.1",
-    "react-redux": "^5.0.6"
+    "react-hoc-timerfuncs": "^1.0.1"
   }
 }
