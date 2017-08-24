@@ -231,7 +231,7 @@ import query from "react-hoc-query"
 
 @query({
   group: "movieItems",
-  // Note key could be a function taking `props`.
+  // Note key could be a function taking `props` too.
   key: props => `movie-item-${props.id}`
   op: async props => {
     return await api.movieItem(props.id)
