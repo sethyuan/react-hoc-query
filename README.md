@@ -210,6 +210,44 @@ query.closeLoading = () => {
 }
 ```
 
+### Use group to limit cache size
+
+on your app entry:
+
+```js
+import { groups } from "react-hoc-query"
+
+// This defines the cache size (number of query results) for the group
+// `movieItems`. Default size for new groups is 10. Everything else goes
+// into the `DEFAULT` group, which is practically unlimited.
+groups.movieItems = 20
+```
+
+usage:
+
+```js
+import React from "react"
+import query from "react-hoc-query"
+
+@query({
+  group: "movieItems",
+  // Note key could be a function taking `props`.
+  key: props => `movie-item-${props.id}`
+  op: async props => {
+    return await api.movieItem(props.id)
+  },
+})
+class MovieDetail from React.Component {
+  render() {
+    const { loading, error, data } = this.props.query
+    // ...
+  }
+}
+```
+
+With the above setup, no matter how many movie items you visit, only the most
+recent 20 will be cached. This prevents possible overuse of memory.
+
 ## Dev setup
 
 1. `yarn`
