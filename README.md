@@ -7,7 +7,7 @@ features:
   restful API services
 - Query results are stored in Redux' store
   - so the same query elsewhere will simply fetch from cache (the store) and,
-  - any updates to the data in store will cause dependant components to
+  - any updates to the data in store will cause dependent components to
     refresh and,
   - you can use the redux devtool to debug data
 - A manual `refetch` is provided via props in case you need to ignore possible
