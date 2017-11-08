@@ -1,6 +1,6 @@
 {
   "name": "react-hoc-query",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "HOC to help you query restful data",
   "main": "lib/index.js",
   "repository": "https://github.com/sethyuan/react-hoc-query.git",
@@ -9,13 +9,13 @@
   "scripts": {
     "cleanup": "rm -rf lib",
     "build": "babel src -d lib",
-    "lint": "prettier --trailing-comma all --no-semi --write \"src/**/*.@(js|less|css)\" && eslint_d --fix src",
+    "lint": "prettier --write \"src/**/*.js\" && eslint_d --fix src",
     "precommit": "lint-staged",
     "prepare": "yarn run cleanup && yarn build"
   },
   "lint-staged": {
     "src/**/*.js": [
-      "prettier --trailing-comma all --no-semi --write",
+      "prettier --write",
       "eslint_d --fix",
       "git add"
     ]
@@ -43,7 +43,7 @@
   },
   "dependencies": {
     "immutability-helper": "^2.3.1",
-    "lru_map": "^0.3.3",
+    "lru-fast": "^0.2.2",
     "react-hoc-timerfuncs": "^1.0.1"
   }
 }
