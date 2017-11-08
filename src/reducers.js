@@ -1,6 +1,6 @@
 import update from "immutability-helper";
 import { SET_LOADING, SET_ERROR, SET_DATA, INC_USAGE } from "./actions";
-import { LRUMap } from "lru-fast";
+import { LRUCache } from "lru-fast";
 import { groups as groupSizes, DEFAULT_GROUP_SIZE } from "./index";
 
 const groups = {};
@@ -53,7 +53,7 @@ function readyGroupKey(state, group, key) {
       [group]: { $set: {} }
     });
 
-    groups[group] = new LRUMap(
+    groups[group] = new LRUCache(
       groupSizes[group] != null ? groupSizes[group] : DEFAULT_GROUP_SIZE
     );
   }
