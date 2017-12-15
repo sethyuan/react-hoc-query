@@ -34,7 +34,7 @@
     "eslint_d": "^5.1.0",
     "husky": "^0.14.3",
     "lint-staged": "^4.0.3",
-    "prettier": "^1.5.3"
+    "prettier": "^1.9.2"
   },
   "peerDependencies": {
     "react": ">=15.6.1",
