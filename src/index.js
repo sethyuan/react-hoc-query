@@ -15,7 +15,14 @@ function displayName(Comp) {
   return Comp.displayName || Comp.name || "Component"
 }
 
-function query({ group = "DEFAULT", key, name = "query", op, pollInterval }) {
+function query({
+  group = "DEFAULT",
+  key,
+  name = "query",
+  op,
+  pollInterval,
+  immediate = true,
+}) {
   return Comp => {
     @timer
     @connect(
@@ -55,6 +62,7 @@ function query({ group = "DEFAULT", key, name = "query", op, pollInterval }) {
         propsObj.loading = this.props._loading_
         propsObj.error = this.props._error_
         propsObj.data = this.props._data_
+        propsObj.fetch = this.fetch
         propsObj.refetch = this.refetch
         propsObj.startPolling = this.startPolling
         propsObj.endPolling = this.endPolling
@@ -81,7 +89,9 @@ function query({ group = "DEFAULT", key, name = "query", op, pollInterval }) {
       }
 
       componentDidMount() {
-        this.fetch()
+        if (immediate) {
+          this.fetch()
+        }
       }
 
       componentWillReceiveProps(nextProps) {
