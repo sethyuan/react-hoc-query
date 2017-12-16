@@ -47,7 +47,7 @@ function query({
             query[group][queryKey].data,
         }
 
-        if (dependOn && dependOn.length > 0) {
+        if (dependOn) {
           for (let dep of dependOn) {
             // dep is either a string or a { key, group }
             if (typeof dep === "string") {
@@ -103,6 +103,16 @@ function query({
           ...attrs
         } = this.props
         /* eslint-enable no-unused-vars */
+
+        if (dependOn) {
+          for (let dep of dependOn) {
+            if (typeof dep === "string") {
+              delete attrs[`_dep_${dep}_`]
+            } else {
+              delete attrs[`_dep_${dep.group}_${dep.key}_`]
+            }
+          }
+        }
 
         return <Comp {...attrs} {...props} />
       }
