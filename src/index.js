@@ -21,7 +21,9 @@ function query({
   name = "query",
   op,
   pollInterval,
-  immediate = true,
+  dependOn,
+  shouldFetch = () => true,
+  immediate = !dependOn || dependOn.length === 0,
 }) {
   return Comp => {
     @timer
@@ -29,7 +31,7 @@ function query({
       ({ query }, ownProps) => {
         const queryKey = getKey(key, ownProps)
 
-        return {
+        const props = {
           _queryKey_: queryKey,
           _loading_:
             query[group] && query[group][queryKey]
@@ -44,6 +46,23 @@ function query({
             query[group][queryKey] &&
             query[group][queryKey].data,
         }
+
+        if (dependOn && dependOn.length > 0) {
+          for (let dep of dependOn) {
+            // dep is either a string or a { key, group }
+            if (typeof dep === "string") {
+              props[`_dep_${dep}_`] =
+                query[group] && query[group][dep] && query[group][dep].data
+            } else {
+              props[`_dep_${dep.group}_${dep.key}_`] =
+                query[dep.group] &&
+                query[dep.group][dep.key] &&
+                query[dep.group][dep.key].data
+            }
+          }
+        }
+
+        return props
       },
       {
         _setLoading_: act.setLoading,
@@ -102,6 +121,27 @@ function query({
         ) {
           this.propsObj = {}
         }
+
+        if (dependOn && dependOn.length > 0) {
+          const depProps = dependOn.map(dep => {
+            // dep is either a string or a { key, group }
+            if (typeof dep === "string") {
+              return `_dep_${dep}_`
+            } else {
+              return `_dep_${dep.group}_${dep.key}_`
+            }
+          })
+
+          const someChanged = depProps.some(
+            dep => this.props[dep] !== nextProps[dep],
+          )
+
+          const allNonNull = depProps.every(dep => nextProps[dep] != null)
+
+          if (someChanged && allNonNull && shouldFetch(nextProps)) {
+            this.refetch(nextProps)
+          }
+        }
       }
 
       componentDidUpdate(prevProps, prevState) {
@@ -118,7 +158,7 @@ function query({
         }
       }
 
-      refetch = async () => {
+      refetch = async (props = this.props) => {
         const {
           _queryKey_,
           _setLoading_,
@@ -128,7 +168,7 @@ function query({
           _loading_,
           setTimeout,
           clearTimeout,
-        } = this.props
+        } = props
 
         if (!_loading_ && !this.isFetching) {
           _setError_(group, _queryKey_, undefined)
@@ -139,7 +179,7 @@ function query({
               query.openLoading,
               query.loadingWait * 1000,
             )
-            const data = await op(this.props)
+            const data = await op(props)
             clearTimeout(this.loadTimer)
             _setData_(group, _queryKey_, data)
             _incUsage_(group, _queryKey_)
