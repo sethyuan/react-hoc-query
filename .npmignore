@@ -1,4 +1,2 @@
 /src/
-/.babelrc
-/.eslintrc.js
-/.eslintignore
+/.*

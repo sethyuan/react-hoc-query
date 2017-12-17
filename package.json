@@ -1,6 +1,6 @@
 {
   "name": "react-hoc-query",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "HOC to help you query restful data",
   "main": "lib/index.js",
   "repository": "https://github.com/sethyuan/react-hoc-query.git",
