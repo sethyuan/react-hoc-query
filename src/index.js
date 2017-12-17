@@ -118,7 +118,17 @@ function query({
       }
 
       componentDidMount() {
-        if (immediate) {
+        const depsSatisfied =
+          dependOn &&
+          dependOn.every(dep => {
+            if (typeof dep === "string") {
+              return this.props[`_dep_${dep}_`] != null
+            } else {
+              return this.props[`_dep_${dep.group}_${dep.key}_`] != null
+            }
+          })
+
+        if (immediate || depsSatisfied) {
           this.fetch()
         }
       }
