@@ -21,6 +21,7 @@ features:
   should the query result delays for too long (longer than `query.loadingWait`)
 - You can setup an interval to poll newest data periodically, and control when
   to start/end polling via props (`startPolling`, `endPolling`)
+- Multiple queries and query dependencies are supported
 - You can create groups to control the overall cache size. Each group has
   a limit on how much query results it can store, and will discard excessive
   items using the LRU algorithm.
@@ -41,6 +42,7 @@ import query from "react-hoc-query/lib/reducers"
 const store = createStore(
   combineReducers({
     // ...,
+    // It has to be named `query`.
     query,
   }),
   // ...
@@ -172,6 +174,63 @@ class App from React.Component {
 
   componentWillUnmount() {
     this.props.query.endPolling()
+  }
+}
+```
+
+### Query dependencies
+
+In the below example, 3 queries are used by App, but only `loginInfo` and
+`userProfile` are necessary for start displaying content to the users.
+`loginInfo` and `chatChannels` will be fetched concurrently while
+`userProfile` is only fetched after `loginInfo` is available and that the user
+is logged in.
+
+Each time one of the dependencies changes, the query gets refetched upon
+dependency availability given `shouldFetch` returns true.
+
+Also, note that the order in which you apply the queries are important,
+queries with `dependOn` should appear below their dependencies.
+
+```js
+import React from "react"
+import query from "react-hoc-query"
+import { propReduce } from "reactutils"
+
+@query({
+  key: "loginInfo",
+  name: "loginInfo",
+  op: api.loginInfo,
+})
+@query({
+  key: "chatChannels",
+  name: "chatChannels",
+  op: api.chatChannels,
+})
+@query({
+  key: props =>
+    props.loginInfo.data ? `userProfile:${props.loginInfo.data.uid}` : "",
+  name: "userProfile",
+  op: props => api.userProfile(props.loginInfo.data.userId),
+  dependOn: ["loginInfo"],
+  shouldFetch: props => props.loginInfo.data.isLoggedIn,
+})
+@propReduce(
+  { loading: (ret, item) => ret || item.loading },
+  ["loginInfo", "userProfile"],
+  false,
+)
+export default class App extends React.Component {
+  render() {
+    const { loading, loginInfo, chatChannels, userProfile } = this.props
+
+    if (loading) {
+      return <div>Loading</div>
+    } else if (userProfile.data) {
+      return <div className="demo-app">Hello {userProfile.data.name}</div>
+    } else {
+      return null
+    }
   }
 }
 ```
