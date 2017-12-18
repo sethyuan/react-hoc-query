@@ -192,6 +192,12 @@ dependency availability given `shouldFetch` returns true.
 Also, note that the order in which you apply the queries is important,
 queries with `dependOn` should appear below their dependencies.
 
+`dependOn` is an array of both string and objects of shape `{ group, key }`.
+When an item is a string, it indicates a dependency for the specified key of
+the same group as the query itself; otherwise, a `{ group, key }` is needed to
+depend on a key of a different group. Please look further down for the
+introduction of groups.
+
 ```js
 import React from "react"
 import query from "react-hoc-query"
