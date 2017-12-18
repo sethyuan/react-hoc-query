@@ -189,7 +189,7 @@ is logged in.
 Each time one of the dependencies changes, the query gets refetched upon
 dependency availability given `shouldFetch` returns true.
 
-Also, note that the order in which you apply the queries are important,
+Also, note that the order in which you apply the queries is important,
 queries with `dependOn` should appear below their dependencies.
 
 ```js
