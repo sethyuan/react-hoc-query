@@ -225,6 +225,12 @@ function query({
         clearInterval(this.pollTimer)
       }
     }
+
+    // copy all static members except `displayName`
+    // eslint-disable-next-line
+    const { displayName: ignored, ...members } = Comp
+    Object.assign(Query, members)
+
     return Query
   }
 }
